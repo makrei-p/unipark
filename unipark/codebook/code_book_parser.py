@@ -74,6 +74,24 @@ def get_map_for_ranked(lines, start, end):
     return ret
 
 
+def get_map_for_matrix(lines, start, end):
+    # matrix is basically a list of single questions so lets handle it that way
+    subs = []
+
+    def is_headline(x):  # non-headlines start with '\t\t'
+        return bool(x.split('\t')[0])
+    sub_start, sub_end = start, start + 1
+    while sub_end < end:
+        # search for sub-questions (sub_end is exclusive last line of q --> first line of next)
+        while sub_end < end and not is_headline(lines[sub_end]):
+            sub_end += 1
+        subs.append(get_map_for_single_selection(lines, sub_start, sub_end))
+        sub_start = sub_end
+        sub_end += 1
+    ret = {'subs': subs}
+    return ret
+
+
 class CodeBookParser:
     page_re = r'^[0-9]*\.?[0-9]? Seite: (.*) \(PGID ([0-9]{7})\)$'
     question_re = r'^(.*) \(q_([0-9]{7}) - Typ ([0-9]{3})\)$'
@@ -158,7 +176,7 @@ class CodeBookParser:
         elif ret['style'] == 'rank':
             ret = {**ret, **get_map_for_ranked(self.lines, start_line + 1, end_line)}
         elif ret['style'] == 'matrix':
-            pass
+            ret = {**ret, **get_map_for_matrix(self.lines, start_line + 1, end_line)}
         else:
             print(f'unknown question type {ret["style"]}')
         return ret
