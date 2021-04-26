@@ -37,6 +37,8 @@ def translate_multiple_choice(df, translator_map, prefix, int_converter = lambda
     entities = []
     varchars = []
     for var in [x for x in translator_map.keys() if x.startswith('v_')]:
+        if var not in df.columns:
+            continue # skip if it is the unused alt_name
         dtype, role = translator_map[var]
         role = prefix + role
         if dtype == 'int':
@@ -49,10 +51,13 @@ def translate_multiple_choice(df, translator_map, prefix, int_converter = lambda
     return entities, varchars
 
 
-def translate_single_choice(df, translator_map, source_column=None, prefix=''):
+def translate_single_choice(df: pd.DataFrame, translator_map, source_column=None, prefix=''):
     target = prefix + translator_map['int']
-    if not source_column:
+    if not source_column or source_column not in df.columns:
         source_column = translator_map['column']
+    if not source_column or source_column not in df.columns:
+        source_column = translator_map['alt_column']
+
     df[target] = df[source_column].apply(lambda x: translator_map[str(x)] if str(x) in translator_map else None)
     return target
 

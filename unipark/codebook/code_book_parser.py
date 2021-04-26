@@ -14,6 +14,8 @@ qtype_id_to_qtype_translator = {
     131: 'single',
     141: 'free',
     142: 'free',
+#    143: 'strange',
+    311: 'matrix',
     411: 'rank'
 }
 
@@ -23,28 +25,31 @@ def get_map_for_multi_selection(lines, start, end):
     for line in lines[start:end:3]:
         if '\t' in line:
             splits = line.split('\t')
-            var_translator[splits[0]] = (splits[2], splits[3])
+            value = (splits[2], splits[3])
+            var_translator[splits[1]] = value
+            # vars hve alt name splits[0] --> add both keys with same value
+            var_translator[splits[0]] = value
     return var_translator
 
 
 def get_map_for_single_selection(lines, start, end):
-    # print(start, end)
-    # print(lines[start])
     def get_tuple(x):
+        # take last two columns (int, str name)
         tup = x.split('\t')[2:4]
         if not tup[1]:
             tup[1] = tup[0]
         return tup
 
     ret = dict([get_tuple(x) for x in lines[start:end]])
-    ret['column'] = lines[start].split('\t')[0]
+    ret['alt_column'], ret['column'] = lines[start].split('\t')[0:2]
     return ret
 
 
 def get_map_for_freetext(lines, start, end):
     splits = lines[start].split('\t')
     return {
-        'column': splits[0],
+        'alt_columns': splits[0],
+        'column': splits[1],
         'varchar': splits[3]
     }
 
@@ -136,7 +141,7 @@ class CodeBookParser:
         ret = {
             'type': 'question',
             'style_id': style_id,
-            'style': qtype_id_to_qtype_translator[int(style_id)],
+            'style': qtype_id_to_qtype_translator.get(int(style_id), style_id),
             'title': title,
             'id': id
         }
@@ -152,4 +157,8 @@ class CodeBookParser:
             ret = {**ret, **get_map_for_freetext(self.lines, start_line + 1, end_line)}
         elif ret['style'] == 'rank':
             ret = {**ret, **get_map_for_ranked(self.lines, start_line + 1, end_line)}
+        elif ret['style'] == 'matrix':
+            pass
+        else:
+            print(f'unknown question type {ret["style"]}')
         return ret

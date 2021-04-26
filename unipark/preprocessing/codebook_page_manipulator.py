@@ -44,6 +44,8 @@ class CodeBookPageManipulator(Manipulator):
             elif style == 'free':
                 target = str(question_map['id']) + ' ' + question_map['varchar'] + ' string'
                 source = question_map['column']
+                if source not in data.columns:
+                    source = question_map['alt_column']
                 data[target]= data[source].apply(lambda x: x if type(x) is str and x!='-99' and x != '-66' else None)
                 self.inferred_columns.append(target)
                 self.removable_columns.append(source)
