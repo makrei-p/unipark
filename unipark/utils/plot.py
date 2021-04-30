@@ -17,8 +17,12 @@ def get_geopandas_world():
     return world
 
 
-def plot_worldmap(count_per_country3_map, legend=False, name="Undefined", cmap='Greens',
-                  missing_kwds={'color': 'lightgrey'}):
+def plot_worldmap(count_per_country3_map, legend=False, name="Undefined", cmap='Greens', missing_kwds=None):
+    if missing_kwds is None:
+        missing_kwds = {'color': 'lightgrey'}
+    if 'color' not in missing_kwds.keys():
+        missing_kwds['color'] = 'lightgrey'
+
     world = get_geopandas_world()
 
     world[name] = world['iso_a3'].apply(
@@ -42,7 +46,7 @@ def _is_exclusive(series):
 
 def create_plot_from_truth_matrix(df, style='bar', names=None, with_exclusives=False):
     if with_exclusives:
-        exclusive = df[df.apply(lambda x: _is_exclusive(x), axis=1)]
+        exclusive = df[df.apply(_is_exclusive, axis=1)]
 
     df_count = df.apply(pd.value_counts)
     if with_exclusives:
@@ -59,25 +63,27 @@ def create_plot_from_truth_matrix(df, style='bar', names=None, with_exclusives=F
 
     ret = df_count.loc[True].plot(kind=style, color='lightgrey')
     ret = df_count.loc[True].plot(kind=style, fill=(not with_exclusives))
-    if with_exclusives:
+    if with_exclusives and True in ex_count.index:
         ret = ex_count.loc[True].plot(kind=style)
 
     return ret
 
 
+def make_str(a):
+    return '' if a is None or (type(a) == float and np.isnan(a)) else str(a)
+
+
 def combine_strs(a, b):
-    a = '' if a is None or (type(a) == float and np.isnan(a)) else str(a)
-    b = '' if b is None or (type(b) == float and np.isnan(b)) else str(b)
-    return a + ' ' + b
+    return make_str(a) + ' ' + make_str(b)
 
 
 def plot_wordcloud(series, save_file=None, show=False):
     text = reduce(combine_strs, series)
-
+    if not text.strip():
+        return None
     # Generate word cloud
     wordcloud = WordCloud(width=3000, height=1000, random_state=1, background_color='white', collocations=False,
                           stopwords=STOPWORDS).generate(text)
-
     plt.figure(figsize=(40, 30))
 
     # Display image

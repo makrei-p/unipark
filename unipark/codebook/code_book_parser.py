@@ -2,19 +2,12 @@ import pandas as pd
 import re
 
 # styles
-# 111 : Einfachauswahl
-# 121 : Mehrfachauswahl
-# 131 : Drop-Down-Liste
-# 141 : Textfeld einzeilig
-# 142 : Textbereich
-# 411 : Ranking
 qtype_id_to_qtype_translator = {
     111: 'single',
     121: 'multiple',
     131: 'single',
     141: 'free',
     142: 'free',
-#    143: 'strange',
     311: 'matrix',
     411: 'rank'
 }
@@ -56,8 +49,8 @@ def get_map_for_freetext(lines, start, end):
 
 def get_map_for_ranked(lines, start, end):
     ret = {}
-    min = None
-    max = None
+    minimum = None
+    maximum = None
     while start != end:
         line = lines[start]
         if line.startswith('v_'):
@@ -66,11 +59,13 @@ def get_map_for_ranked(lines, start, end):
         elif line.strip():
             splits = line.split('\t')
             num = int(splits[3])
-            if min is None or min > num: min = num
-            if max is None or max < num: max = num
+            if minimum is None or minimum > num:
+                minimum = num
+            if maximum is None or maximum < num:
+                maximum = num
         start += 1
-    ret['range_min'] = min
-    ret['range_max'] = max
+    ret['range_min'] = minimum
+    ret['range_max'] = maximum
     return ret
 
 
@@ -80,6 +75,7 @@ def get_map_for_matrix(lines, start, end):
 
     def is_headline(x):  # non-headlines start with '\t\t'
         return bool(x.split('\t')[0])
+
     sub_start, sub_end = start, start + 1
     while sub_end < end:
         # search for sub-questions (sub_end is exclusive last line of q --> first line of next)
@@ -145,23 +141,23 @@ class CodeBookParser:
         ret.append(self.get_pagebook(*pages[-1]))
         return ret
 
-    def get_pagebook(self, start_line, title, id, end_line=-1):
+    def get_pagebook(self, start_line, title, page_id, end_line=-1):
         questions = [x for x in self.get_question_lines() if x[0] > start_line and (end_line == -1 or end_line > x[0])]
         ret = {
             'type': 'page',
             'title': title,
-            'id': id,
+            'id': page_id,
             'questions': [self.get_questionbook(*x) for x in questions]
         }
         return ret
 
-    def get_questionbook(self, start_line, title, id, style_id):
+    def get_questionbook(self, start_line, title, question_id, style_id):
         ret = {
             'type': 'question',
             'style_id': style_id,
             'style': qtype_id_to_qtype_translator.get(int(style_id), style_id),
             'title': title,
-            'id': id
+            'id': question_id
         }
         end_line = start_line
         while end_line + 2 < len(self.lines) and (self.lines[end_line + 1] or self.lines[end_line]):
