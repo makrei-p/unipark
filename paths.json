@@ -1,0 +1,6 @@
+{
+    "input_csv" : "./test/data.csv",
+    "codebook_path" : "./test/codebook.csv",
+    "figures_save_dir_metadata" : "./test/figs/md",
+    "figures_save_dir_autogen" : "./test/figs/auto_gen"
+}
