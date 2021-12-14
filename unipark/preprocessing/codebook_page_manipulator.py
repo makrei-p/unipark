@@ -1,6 +1,6 @@
 import re
 
-from unipark.utils.frame import translate_multiple_choice, translate_single_choice, translate_free_text
+from unipark.utils.frame import translate_multiple_choice, translate_single_choice
 from unipark.preprocessing.manipulator_blueprint import Manipulator
 
 
@@ -12,10 +12,10 @@ class CodeBookPageManipulator(Manipulator):
         self.protected_columns = []
         self.removable_columns = []
         self.questions = []
-        self.q2c_map = {} # map columns for question
-        self.q2s_map = {} # map style for question
-        self.q2o_map = {} # map original value-order for question
-        self.q2i_map = {} # map id for question
+        self.q2c_map = {}  # map columns for question
+        self.q2s_map = {}  # map style for question
+        self.q2o_map = {}  # map original value-order for question
+        self.q2i_map = {}  # map id for question
 
     def transform_data(self, data):
         for question_map in self.pagebook['questions']:
@@ -23,8 +23,9 @@ class CodeBookPageManipulator(Manipulator):
             prefix = str(question_map['id']) + " "
             style = question_map['style']
             if style == 'single':
+                # ToDo: single + varchar!
                 new_column = translate_single_choice(data, question_map, prefix=prefix)
-                order = [question_map[x] for x in question_map.keys() if type(x)== int or re.findall(r'^[0-9]+$',x)]
+                order = [question_map[x] for x in question_map.keys() if type(x) == int or re.findall(r'^[0-9]+$', x)]
                 self.inferred_columns.append(new_column)
                 self.removable_columns.append(question_map['column'])
                 self.q2c_map[question] = [new_column]
@@ -44,7 +45,9 @@ class CodeBookPageManipulator(Manipulator):
             elif style == 'free':
                 target = str(question_map['id']) + ' ' + question_map['varchar'] + ' string'
                 source = question_map['column']
-                data[target]= data[source].apply(lambda x: x if type(x) is str and x!='-99' and x != '-66' else None)
+                if source not in data.columns:
+                    source = question_map['alt_column']
+                data[target] = data[source].apply(lambda x: x if type(x) is str and x != '-99' and x != '-66' else None)
                 self.inferred_columns.append(target)
                 self.removable_columns.append(source)
                 self.protected_columns.append(target)
@@ -54,7 +57,9 @@ class CodeBookPageManipulator(Manipulator):
                 self.questions += [question]
 
             elif style == 'rank':
-                entities, _ = translate_multiple_choice(data, question_map, prefix=prefix, int_converter=lambda x: int(x) if x and not str(x).startswith('-') else None)
+                entities, _ = translate_multiple_choice(data, question_map, prefix=prefix,
+                                                        int_converter=lambda x: int(x) if x and not str(x).startswith(
+                                                            '-') else None)
                 self.inferred_columns += entities
                 self.removable_columns += [x for x in question_map.keys() if x.startswith('v_')]
                 self.q2c_map[question] = entities
@@ -62,7 +67,20 @@ class CodeBookPageManipulator(Manipulator):
                 self.q2i_map[question] = question_map['id']
                 self.questions += [question]
 
-                # print('rank is not supported yet ({})\n{}'.format(question, question_map))
+            elif style == 'matrix':
+                entities = []
+                order = None
+                for sub in question_map['subs']:
+                    new_column = translate_single_choice(data, sub, prefix=prefix)
+                    entities.append(new_column)
+                    self.removable_columns.append(sub['column'])
+                    order = [sub[x] for x in question_map.keys() if type(x) == int or re.findall(r'^[0-9]+$', x)]
+                self.inferred_columns.append(entities)
+                self.q2c_map[question] = [entities]
+                self.q2s_map[question] = 'matrix'
+                self.q2o_map[question] = order
+                self.q2i_map[question] = question_map['id']
+                self.questions += [question]
 
             else:
                 print('unknown question style: {}'.format(style))
@@ -84,16 +102,17 @@ class CodeBookPageManipulator(Manipulator):
         return None
 
     def get_question_style(self, question):
-        '''
+        """
         :param question: string as in get_questions identifying a question
-        :return: 'single' (single choice), 'multiple' (multiple choice), 'free' (free text) or 'rate' (rating). None if it isn't a question
-        '''
+        :return: 'single' (single choice), 'multiple' (multiple choice), 'free' (free text) or 'rate' (rating).
+                 None if it isn't a question
+        """
         if question in self.q2s_map.keys():
             return self.q2s_map[question]
         return None
 
     def get_value_order_for_question(self, question):
-        return self.q2o_map.get(question,[])
+        return self.q2o_map.get(question, [])
 
     def get_question_id(self, question):
         return self.q2i_map.get(question, -1)

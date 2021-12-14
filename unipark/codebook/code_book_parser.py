@@ -2,18 +2,13 @@ import pandas as pd
 import re
 
 # styles
-# 111 : Einfachauswahl
-# 121 : Mehrfachauswahl
-# 131 : Drop-Down-Liste
-# 141 : Textfeld einzeilig
-# 142 : Textbereich
-# 411 : Ranking
 qtype_id_to_qtype_translator = {
     111: 'single',
     121: 'multiple',
     131: 'single',
     141: 'free',
     142: 'free',
+    311: 'matrix',
     411: 'rank'
 }
 
@@ -23,36 +18,39 @@ def get_map_for_multi_selection(lines, start, end):
     for line in lines[start:end:3]:
         if '\t' in line:
             splits = line.split('\t')
-            var_translator[splits[0]] = (splits[2], splits[3])
+            value = (splits[2], splits[3])
+            var_translator[splits[1]] = value
+            # vars hve alt name splits[0] --> add both keys with same value
+            var_translator[splits[0]] = value
     return var_translator
 
 
 def get_map_for_single_selection(lines, start, end):
-    # print(start, end)
-    # print(lines[start])
     def get_tuple(x):
+        # take last two columns (int, str name)
         tup = x.split('\t')[2:4]
         if not tup[1]:
             tup[1] = tup[0]
         return tup
 
     ret = dict([get_tuple(x) for x in lines[start:end]])
-    ret['column'] = lines[start].split('\t')[0]
+    ret['alt_column'], ret['column'] = lines[start].split('\t')[0:2]
     return ret
 
 
 def get_map_for_freetext(lines, start, end):
     splits = lines[start].split('\t')
     return {
-        'column': splits[0],
+        'alt_columns': splits[0],
+        'column': splits[1],
         'varchar': splits[3]
     }
 
 
 def get_map_for_ranked(lines, start, end):
     ret = {}
-    min = None
-    max = None
+    minimum = None
+    maximum = None
     while start != end:
         line = lines[start]
         if line.startswith('v_'):
@@ -61,11 +59,32 @@ def get_map_for_ranked(lines, start, end):
         elif line.strip():
             splits = line.split('\t')
             num = int(splits[3])
-            if min is None or min > num: min = num
-            if max is None or max < num: max = num
+            if minimum is None or minimum > num:
+                minimum = num
+            if maximum is None or maximum < num:
+                maximum = num
         start += 1
-    ret['range_min'] = min
-    ret['range_max'] = max
+    ret['range_min'] = minimum
+    ret['range_max'] = maximum
+    return ret
+
+
+def get_map_for_matrix(lines, start, end):
+    # matrix is basically a list of single questions so lets handle it that way
+    subs = []
+
+    def is_headline(x):  # non-headlines start with '\t\t'
+        return bool(x.split('\t')[0])
+
+    sub_start, sub_end = start, start + 1
+    while sub_end < end:
+        # search for sub-questions (sub_end is exclusive last line of q --> first line of next)
+        while sub_end < end and not is_headline(lines[sub_end]):
+            sub_end += 1
+        subs.append(get_map_for_single_selection(lines, sub_start, sub_end))
+        sub_start = sub_end
+        sub_end += 1
+    ret = {'subs': subs}
     return ret
 
 
@@ -122,23 +141,23 @@ class CodeBookParser:
         ret.append(self.get_pagebook(*pages[-1]))
         return ret
 
-    def get_pagebook(self, start_line, title, id, end_line=-1):
+    def get_pagebook(self, start_line, title, page_id, end_line=-1):
         questions = [x for x in self.get_question_lines() if x[0] > start_line and (end_line == -1 or end_line > x[0])]
         ret = {
             'type': 'page',
             'title': title,
-            'id': id,
+            'id': page_id,
             'questions': [self.get_questionbook(*x) for x in questions]
         }
         return ret
 
-    def get_questionbook(self, start_line, title, id, style_id):
+    def get_questionbook(self, start_line, title, question_id, style_id):
         ret = {
             'type': 'question',
             'style_id': style_id,
-            'style': qtype_id_to_qtype_translator[int(style_id)],
+            'style': qtype_id_to_qtype_translator.get(int(style_id), style_id),
             'title': title,
-            'id': id
+            'id': question_id
         }
         end_line = start_line
         while end_line + 2 < len(self.lines) and (self.lines[end_line + 1] or self.lines[end_line]):
@@ -152,4 +171,8 @@ class CodeBookParser:
             ret = {**ret, **get_map_for_freetext(self.lines, start_line + 1, end_line)}
         elif ret['style'] == 'rank':
             ret = {**ret, **get_map_for_ranked(self.lines, start_line + 1, end_line)}
+        elif ret['style'] == 'matrix':
+            ret = {**ret, **get_map_for_matrix(self.lines, start_line + 1, end_line)}
+        else:
+            print(f'unknown question type {ret["style"]}')
         return ret

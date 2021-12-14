@@ -54,7 +54,6 @@ disp_translator = {
 
 
 class MetadataManipulator(Manipulator):
-
     page_id = 0
 
     def transform_data(self, data):
@@ -77,16 +76,17 @@ class MetadataManipulator(Manipulator):
         return ['platform', 'dispcode_named', 'date_of_start']
 
     def get_questions(self):
-        return [] # Metadata has no questions!
+        return []  # Metadata has no questions!
 
     def get_columns_of_question(self, question):
         return []
 
     def get_question_style(self, question):
-        '''
+        """
         :param question: string as in get_questions identifying a question
-        :return: 'single' (single choice), 'multiple' (multiple choice), 'free' (free text) or 'rate' (rating). None if it isn't a question
-        '''
+        :return: 'single' (single choice), 'multiple' (multiple choice), 'free' (free text) or 'rate' (rating).
+                 None if it isn't a question
+        """
         return None
 
     def get_value_order_for_question(self, question):

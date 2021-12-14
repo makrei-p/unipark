@@ -8,17 +8,17 @@ class Manipulator(ABC):
         return data
 
     def get_page_id(self):
-        '''
+        """
 
         :return: Negative value for no_page, 0 for metadata, >0 for page_id
-        '''
+        """
         return -1
 
     def get_inferred_columns(self):
-        '''
+        """
 
         :return: List of column names added by transform_data
-        '''
+        """
         return []
 
     def get_questions(self):
@@ -28,10 +28,11 @@ class Manipulator(ABC):
         return []
 
     def get_question_style(self, question):
-        '''
+        """
         :param question: string as in get_questions identifying a question
-        :return: 'single' (single choice), 'multiple' (multiple choice), 'free' (free text) or 'rank' (ranking). None if it isn't a question
-        '''
+        :return: 'single' (single choice), 'multiple' (multiple choice), 'free' (free text) or 'rank' (ranking).
+                 None if it isn't a question
+        """
         return None
 
     def get_value_order_for_question(self, question):

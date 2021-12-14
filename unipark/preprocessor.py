@@ -55,7 +55,7 @@ drop_list = [
 
 class Preprocessor:
 
-    def __init__(self, data: pd.DataFrame, to_named_page = lambda x: str(x)):
+    def __init__(self, data: pd.DataFrame, to_named_page=lambda x: str(x)):
         """
         Preprocesses the given data frame for further analysis and creates the preprocessor object.
         :param data:
@@ -95,7 +95,7 @@ class Preprocessor:
         """
         self.data = rename_pages(self.data, page_map)
 
-    def apply_manipulator(self, manipulator:Manipulator):
+    def apply_manipulator(self, manipulator: Manipulator):
         new_data = manipulator.transform_data(self.data.copy())
 
         cols = manipulator.get_inferred_columns()
@@ -119,26 +119,22 @@ class Preprocessor:
             self.pages += [page]
             self.page_ids += [page_id]
 
-
             questions = manipulator.get_questions()
             self.question_ids_by_page[page] = [manipulator.get_question_id(q) for q in questions]
 
             for q in questions:
-                id = manipulator.get_question_id(q)
-                self.columns_by_question_id[id] = manipulator.get_columns_of_question(q)
-                self.style_by_question_id[id] = manipulator.get_question_style(q)
-                self.order_of_question_id[id] = manipulator.get_value_order_for_question(q)
-                self.title_of_question_id[id] = q
+                q_id = manipulator.get_question_id(q)
+                self.columns_by_question_id[q_id] = manipulator.get_columns_of_question(q)
+                self.style_by_question_id[q_id] = manipulator.get_question_style(q)
+                self.order_of_question_id[q_id] = manipulator.get_value_order_for_question(q)
+                self.title_of_question_id[q_id] = q
 
         return True
-
-    def apply_codebook(self, codebook):
-        return False
 
     def drop_removable(self):
         self.data = self.data.drop(columns=self.removable_columns)
 
-        #remove occurences in other lists:
+        # remove occurences in other lists:
         self.metadata_columns = [x for x in self.metadata_columns if x not in self.removable_columns]
         self.inferred_columns = [x for x in self.inferred_columns if x not in self.removable_columns]
         self.protected_columns = [x for x in self.protected_columns if x not in self.removable_columns]
@@ -152,5 +148,5 @@ class Preprocessor:
     def get_page_id(self, page):
         return self.page_ids[self.pages.index(page)]
 
-    def get_question_title(self, id):
-        return self.title_of_question_id[id]
+    def get_question_title(self, q_id):
+        return self.title_of_question_id[q_id]
