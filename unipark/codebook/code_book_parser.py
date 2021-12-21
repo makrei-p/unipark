@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 
-# styles
+# sgit chtyles
 qtype_id_to_qtype_translator = {
     111: 'single',
     121: 'multiple',
