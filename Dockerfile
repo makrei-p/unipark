@@ -7,8 +7,13 @@ RUN mamba install --quiet --yes --file=requirements.txt && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
-COPY README.md .
-COPY notebooks notebooks
+ENV JUPYTER_ENABLE_LAB=yes
+
+#RUN mkdir notebooks data
+#RUN chmod -R 777 .
+
+COPY --chown=jovyan --chmod=777 README.md .
+COPY --chown=jovyan --chmod=777 notebooks default_notebooks
 
 COPY unipark /opt/PyModules/unipark
 COPY LICENSE /opt/PyModules/unipark
