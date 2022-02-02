@@ -45,11 +45,9 @@ def _is_exclusive(series):
 
 
 def create_plot_from_truth_matrix(df, style='bar', names=None, with_exclusives=False):
-    if with_exclusives:
-        exclusive = df[df.apply(_is_exclusive, axis=1)]
-
     df_count = df.apply(pd.value_counts)
     if with_exclusives:
+        exclusive = df[df.apply(_is_exclusive, axis=1)]
         ex_count = exclusive.apply(pd.value_counts)
 
     # names can either be None, a dict with substitutions for column names or
