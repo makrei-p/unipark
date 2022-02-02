@@ -47,6 +47,7 @@ class CodeBookPageManipulator(Manipulator):
                 source = question_map['column']
                 if source not in data.columns:
                     source = question_map['alt_column']
+                # ToDo this lambda filter excludes numerical input fields
                 data[target] = data[source].apply(lambda x: x if type(x) is str and x != '-99' and x != '-66' else None)
                 self.inferred_columns.append(target)
                 self.removable_columns.append(source)
@@ -55,7 +56,23 @@ class CodeBookPageManipulator(Manipulator):
                 self.q2s_map[question] = 'free'
                 self.q2i_map[question] = question_map['id']
                 self.questions += [question]
+            elif style == 'freematrix':
+                options = []
+                for option in question_map.keys():
+                    if option.startswith('v_'):
+                        target = str(question_map['id']) + ' ' + str(question_map[option])
+                        #target = str(question_map['id']) + ' ' + option
+                        options.append(target)
+                        data[target] = data[option].apply(lambda x: x if type(x) is str and x != '-99' and x != '-66' else None)
 
+                self.inferred_columns += options
+                self.removable_columns += [x for x in question_map.keys() if x.startswith('v_')]
+                self.protected_columns += options
+
+                self.q2c_map[question] = options
+                self.q2s_map[question] = 'freematrix'
+                self.q2i_map[question] = question_map['id']
+                self.questions += [question]
             elif style == 'rank':
                 entities, _ = translate_multiple_choice(data, question_map, prefix=prefix,
                                                         int_converter=lambda x: int(x) if x and not str(x).startswith(

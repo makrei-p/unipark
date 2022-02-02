@@ -8,6 +8,7 @@ qtype_id_to_qtype_translator = {
     131: 'single',
     141: 'free',
     142: 'free',
+    143: 'freematrix',
     311: 'matrix',
     411: 'rank'
 }
@@ -45,6 +46,16 @@ def get_map_for_freetext(lines, start, end):
         'column': splits[1],
         'varchar': splits[3]
     }
+
+def get_map_for_freematrix(lines, start, end):
+    def get_tuple(x):
+        option_elements = x.split('\t')
+        variable = option_elements[1]
+        name = option_elements[3].split(':')[1].split('(')[0].strip()
+        return [variable, name]
+
+    ret = dict([get_tuple(line) for line in lines[start:end]])
+    return ret
 
 
 def get_map_for_ranked(lines, start, end):
@@ -169,6 +180,8 @@ class CodeBookParser:
             ret = {**ret, **get_map_for_multi_selection(self.lines, start_line + 1, end_line + 1)}
         elif ret['style'] == 'free':
             ret = {**ret, **get_map_for_freetext(self.lines, start_line + 1, end_line)}
+        elif ret['style'] == 'freematrix':
+            ret = {**ret, **get_map_for_freematrix(self.lines, start_line + 1, end_line)}
         elif ret['style'] == 'rank':
             ret = {**ret, **get_map_for_ranked(self.lines, start_line + 1, end_line)}
         elif ret['style'] == 'matrix':
