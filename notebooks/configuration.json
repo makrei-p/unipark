@@ -1,0 +1,14 @@
+{
+  "paths": {
+    "input_csv": "../../../../../../Documents/Promotion/Projects/[RED] Requirements Engineering Debt/Data/2021 Understanding Requirements Debt/4_Survey/data_project_786665_2022_02_03.csv",
+    "codebook_path": "../../../../../../Documents/Promotion/Projects/[RED] Requirements Engineering Debt/Data/2021 Understanding Requirements Debt/3_Survey-prelim/codebook_project_786665_2021_11_16.csv",
+    "figures_save_dir_metadata": "./test/figs/md",
+    "figures_save_dir_autogen": "./test/figs/auto_gen"
+  },
+  "visualizations": {
+    "single": [
+      { "finishers": true, "chart": "bar", "ordered": true, "likert": true },
+      { "finishers": true, "chart": "bar", "ordered": false, "likert": false }
+    ]
+  }
+}
