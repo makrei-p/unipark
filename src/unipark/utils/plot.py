@@ -2,7 +2,6 @@ import pandas as pd
 import geopandas
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
-from functools import reduce
 from wordcloud import WordCloud, STOPWORDS
 import numpy as np
 
@@ -65,39 +64,5 @@ def create_plot_from_truth_matrix(df, style='bar', names=None, with_exclusives=F
     ret = df_count.loc[True].plot(kind=style, fill=(not with_exclusives))
     if with_exclusives and True in ex_count.index:
         ret = ex_count.loc[True].plot(kind=style)
-
-    return ret
-
-
-def make_str(a):
-    return '' if a is None or (type(a) == float and np.isnan(a)) else str(a)
-
-
-def combine_strs(a, b):
-    return make_str(a) + ' ' + make_str(b)
-
-
-def plot_wordcloud(series, save_file=None, show=False):
-    text = reduce(combine_strs, series)
-    if not text.strip():
-        return None
-    # Generate word cloud
-    wordcloud = WordCloud(width=3000, height=1000, random_state=1, background_color='white', collocations=False,
-                          stopwords=STOPWORDS).generate(text)
-    plt.figure(figsize=(40, 30))
-
-    # Display image
-    plt.imshow(wordcloud)
-    # No axis details
-    ret = plt.axis("off")
-
-    if save_file:
-        plt.savefig(save_file, bbox_inches='tight')
-
-    if not show:
-        plt.cla()
-        plt.clf()
-        plt.close()
-        ret = None
 
     return ret
