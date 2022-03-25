@@ -6,9 +6,6 @@
     "figures_save_dir_autogen": "./test/figs/auto_gen"
   },
   "visualizations": {
-    "single": [
-      { "finishers": true, "chart": "bar", "ordered": true, "likert": true },
-      { "finishers": true, "chart": "bar", "ordered": false, "likert": false }
-    ]
+    "single": [{ "finishers": true, "chart": "bar", "ordered": true, "likert": false }]
   }
 }
