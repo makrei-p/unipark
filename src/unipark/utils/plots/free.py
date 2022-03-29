@@ -22,7 +22,6 @@ def wordcloud(series, file_prefix=None, show=False):
 
     ret = ""
     if file_prefix:
-        ret += 'The answers result in the following wordcloud:\n'
         path = file_prefix + "_wordcloud.png"
         plt.savefig(path, bbox_inches='tight')
         ret += '![alt text]({} "Title")\n'.format(path)

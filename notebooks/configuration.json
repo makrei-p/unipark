@@ -7,6 +7,7 @@
   },
   "visualizations": {
     "single": [{ "finishers": true, "chart": "bar", "ordered": true, "likert": true }],
+    "multiple": [{  "order": "count", "with_exclusives": true, "show_number_of_answers": true}],
     "free": [{ "plot": "wordcloud" }],
     "freematrix": [{ "plot": "textlist" }]
   }
