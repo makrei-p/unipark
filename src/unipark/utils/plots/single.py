@@ -3,18 +3,20 @@ import pandas as pd
 import numpy as np
 from os.path import exists
 
-# define the color map for the likert scale questions
-cmap = plt.get_cmap('RdYlGn')
+from . import likert
 
 # generate a bar chart for a single choice question
-def barchart(data: pd.Series, likert: bool=False, file_prefix=None, show=False):
+def barchart(data: pd.Series, use_likert: bool=False, file_prefix=None, show=False):
     # generate a bar chart
     _, ax = plt.subplots()
 
+    # check if the scale is actually a likert scale
+    if not likert.determine_scale(list(data.index)):
+        use_likert = False
     # if the question is supposed to be on a likert scale, use the likert colors
     pltcolor = None
-    if likert:
-        pltcolor = cmap(np.linspace(0.15, 0.85, len(data.index)))
+    if use_likert:
+        pltcolor = likert.cmap(np.linspace(0.15, 0.85, len(data.index)))
     barc = plt.bar(x=list(range(0, len(data.index))), height=list(data.values), width=0.8, color=pltcolor, tick_label=list(data.index))
     ax.bar_label(barc, label_type='edge')
     plt.xticks(rotation=30)
@@ -25,13 +27,16 @@ def barchart(data: pd.Series, likert: bool=False, file_prefix=None, show=False):
     return ret
 
 # generate a pie chart for a single choice question
-def piechart(data: pd.Series, likert: bool=False, file_prefix=None, show=False):
+def piechart(data: pd.Series, use_likert: bool=False, file_prefix=None, show=False):
     _, ax = plt.subplots()
 
+    # check if the scale is actually a likert scale
+    if not likert.determine_scale(list(data.index)):
+        use_likert = False
     # if the question is supposed to be on a likert scale, use the likert colors
     pltcolor = None
-    if likert:
-        pltcolor = cmap(np.linspace(0.15, 0.85, len(data.index)))
+    if use_likert:
+        pltcolor = likert.cmap(np.linspace(0.15, 0.85, len(data.index)))
     ax.pie(x=list(data.values), labels=list(data.index), colors=pltcolor)
 
     # generate the alternative text, generate the plot and return the markdown line

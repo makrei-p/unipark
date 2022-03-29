@@ -15,6 +15,9 @@ def combine_strs(a, b):
 def wordcloud(series, file_prefix=None, show=False):
     text = reduce(combine_strs, series)
 
+    if not text:
+        return '(no text found)\n'
+
     # Generate word cloud
     wordcloud = WordCloud(width=3000, height=1000, random_state=1, background_color='white', collocations=False, stopwords=STOPWORDS).generate(text)
     plt.figure(figsize=(40, 30))
