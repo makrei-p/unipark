@@ -32,10 +32,14 @@ def histogram(df, style='bar', names=None, with_exclusives=False, order=None, fi
     # reorder columns
     if order:
         if order == 'count':
-            new_columns = df_count.columns[df_count.loc[0].argsort()]
+            new_columns = df_count.columns[df_count.loc[0].argsort()[::-1]]
             df_count = df_count[new_columns]
+            if with_exclusives:
+                ex_count = ex_count[new_columns]
         elif order == 'alphabetic': 
             df_count = df_count.reindex(sorted(df_count.columns), axis=1)
+            if with_exclusives:
+                ex_count = ex_count.reindex(sorted(ex_count.columns), axis=1)
 
     ret = ''
     result = df_count.loc[True].plot(kind=style, color='lightgrey')
