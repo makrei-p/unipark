@@ -6,10 +6,36 @@
     "figures_save_dir_autogen": "./figs/auto_gen"
   },
   "visualizations": {
-    "single": [{ "finishers": true, "chart": "bar", "ordered": true, "likert": true }],
-    "multiple": [{  "order": "count", "with_exclusives": true, "show_number_of_answers": true}],
-    "free": [{ "plot": "textlist" }],
-    "freematrix": [{ "plot": "textlist" }],
-    "matrix": [{ "plot": "likertmatrix", "finishers": true }]
+    "single": [
+      {
+        "finishers": true,
+        "chart": "bar",
+        "ordered": true,
+        "likert": true
+      }
+    ],
+    "multiple": [
+      {
+        "order": "count",
+        "with_exclusives": true,
+        "show_number_of_answers": true
+      }
+    ],
+    "free": [
+      {
+        "plot": "textlist"
+      }
+    ],
+    "freematrix": [
+      {
+        "plot": "textlist"
+      }
+    ],
+    "matrix": [
+      {
+        "plot": "likertmatrix",
+        "finishers": true
+      }
+    ]
   }
 }

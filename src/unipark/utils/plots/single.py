@@ -6,7 +6,9 @@ from os.path import exists
 from . import likert
 
 # generate a bar chart for a single choice question
-def barchart(data: pd.Series, use_likert: bool=False, file_prefix=None, show=False):
+
+
+def barchart(data: pd.Series, use_likert: bool = False, file_prefix=None, show=False):
     # generate a bar chart
     _, ax = plt.subplots()
 
@@ -17,7 +19,8 @@ def barchart(data: pd.Series, use_likert: bool=False, file_prefix=None, show=Fal
     pltcolor = None
     if use_likert:
         pltcolor = likert.cmap(np.linspace(0.15, 0.85, len(data.index)))
-    barc = plt.bar(x=list(range(0, len(data.index))), height=list(data.values), width=0.8, color=pltcolor, tick_label=list(data.index))
+    barc = plt.bar(x=list(range(0, len(data.index))), height=list(
+        data.values), width=0.8, color=pltcolor, tick_label=list(data.index))
     ax.bar_label(barc, label_type='edge')
     plt.xticks(rotation=30)
 
@@ -27,7 +30,9 @@ def barchart(data: pd.Series, use_likert: bool=False, file_prefix=None, show=Fal
     return ret
 
 # generate a pie chart for a single choice question
-def piechart(data: pd.Series, use_likert: bool=False, file_prefix=None, show=False):
+
+
+def piechart(data: pd.Series, use_likert: bool = False, file_prefix=None, show=False):
     _, ax = plt.subplots()
 
     # check if the scale is actually a likert scale
@@ -45,7 +50,9 @@ def piechart(data: pd.Series, use_likert: bool=False, file_prefix=None, show=Fal
     return ret
 
 # save the current plot and create a markdown line with an alternate text
-def saveplt(file_prefix: str, alttext: str='alttext', show=False):
+
+
+def saveplt(file_prefix: str, alttext: str = 'alttext', show=False):
     index = 0
     while exists(f'{file_prefix}_{index}.png'):
         index += 1
@@ -55,7 +62,9 @@ def saveplt(file_prefix: str, alttext: str='alttext', show=False):
     plt.savefig(path, dpi=1200, bbox_inches='tight')
 
     # display the plot if the show option is set, otherwise reset the plot
-    if show: _=plt.show()
-    else: plt.clf()
+    if show:
+        _ = plt.show()
+    else:
+        plt.clf()
 
     return ret

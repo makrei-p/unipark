@@ -7,7 +7,7 @@ import re
 from . import likert
 
 
-def barplot(data:pd.DataFrame, columns, file_prefix=None, show=False):
+def barplot(data: pd.DataFrame, columns, file_prefix=None, show=False):
     ret = ''
 
     # count the values
@@ -23,7 +23,8 @@ def barplot(data:pd.DataFrame, columns, file_prefix=None, show=False):
         vcs.append(col_vc)
     counts = pd.concat(vcs)
 
-    counts['col'] = list(map(lambda name: clean_columname(name), counts['col']))
+    counts['col'] = list(
+        map(lambda name: clean_columname(name), counts['col']))
 
     # plot the distribution of answers for each question
     sns.barplot(data=counts, x='col', y='count', hue='answer')
@@ -33,8 +34,10 @@ def barplot(data:pd.DataFrame, columns, file_prefix=None, show=False):
         path = file_prefix + '_matrix_bar_q.png'
         plt.savefig(path, dpi=1200, bbox_inches='tight')
         ret += '![alt text]({} "Title")\n'.format(path)
-    if show: _=plt.show()
-    else: plt.clf()
+    if show:
+        _ = plt.show()
+    else:
+        plt.clf()
 
     # plot the overall distribution of questions for each answer
     sns.barplot(data=counts, hue='col', y='count', x='answer')
@@ -44,8 +47,10 @@ def barplot(data:pd.DataFrame, columns, file_prefix=None, show=False):
         path = file_prefix + '_matrix_bar_a.png'
         plt.savefig(path, dpi=1200, bbox_inches='tight')
         ret += '![alt text]({} "Title")\n'.format(path)
-    if show: _=plt.show()
-    else: plt.clf()    
+    if show:
+        _ = plt.show()
+    else:
+        plt.clf()
 
     return ret
 
@@ -57,7 +62,7 @@ def likertmatrix(data, columns, file_prefix=None, show=False):
     scale = None
     responses = {}
     for col in columns[0]:
-        # get the data of the current column 
+        # get the data of the current column
         col_data = data[col]
 
         # parse the data into a tabular format
@@ -66,11 +71,12 @@ def likertmatrix(data, columns, file_prefix=None, show=False):
         # determine the most likely likert scale
         if scale == None:
             scale = likert.determine_scale(col_vc.index)
-        responses[clean_columname(col)] = list(map(lambda s: col_vc[s] if (s in col_vc.index) else 0, scale))
-
+        responses[clean_columname(col)] = list(
+            map(lambda s: col_vc[s] if (s in col_vc.index) else 0, scale))
 
     # calculate the buffer such that all bars are aligned on their middle
-    halfway = list(map(lambda r: responses[r][0]+responses[r][1]+(responses[r][2]/2.0), responses))
+    halfway = list(
+        map(lambda r: responses[r][0]+responses[r][1]+(responses[r][2]/2.0), responses))
     buffer = list(map(lambda h: max(halfway)-h, halfway))
     for i, key in enumerate(responses.keys()):
         responses[key] = [buffer[i]] + responses[key]
@@ -93,25 +99,31 @@ def likertmatrix(data, columns, file_prefix=None, show=False):
     # iterate over all options of the scale and associate it with an index and color
     for i, (colname, color) in enumerate(zip(scale[1:], category_colors)):
         widths = data[:, i+1]
-        starts = data_cum[:, i+1] - widths# + buffer
-        rects = ax.barh(labels, widths, left=starts, height=0.5, label=colname, color=color)
+        starts = data_cum[:, i+1] - widths  # + buffer
+        rects = ax.barh(labels, widths, left=starts,
+                        height=0.5, label=colname, color=color)
 
         r, g, b, _ = color
         text_color = 'white' if r * g * b < 0.5 else 'darkgrey'
         # ax.bar_label requires matplotlib version 3.4
         ax.bar_label(rects, label_type='center', color=text_color)
-    ax.legend(ncol=len(scale), bbox_to_anchor=(-0.3, 1), loc='lower left', fontsize='small')
+    ax.legend(ncol=len(scale), bbox_to_anchor=(-0.3, 1),
+              loc='lower left', fontsize='small')
 
     # save the figure
     if file_prefix is not None:
         path = file_prefix + '_matrix_likert.png'
         plt.savefig(path, dpi=1200, bbox_inches='tight')
         ret += '![alt text]({} "Title")\n'.format(path)
-    if show: _=plt.show()
-    else: plt.clf()    
-    return ret   
+    if show:
+        _ = plt.show()
+    else:
+        plt.clf()
+    return ret
 
 # extract the actual columname from the Unipark-columnames
+
+
 def clean_columname(coltext):
     colname = re.search('v_[0-9]+ \((.+?)\)', coltext)
     if colname:

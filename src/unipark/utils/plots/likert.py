@@ -4,12 +4,14 @@ import matplotlib.pyplot as plt
 cmap = plt.get_cmap('RdYlGn')
 
 # known likert scales
-scales = { \
-    'agreement': ['Fully disagree', 'Rather disagree', 'Neutral', 'Rather agree', 'Fully agree'], \
-    'likelihood': ['Unlikely', 'Rather unlikely', 'Neither unlikely nor likely', 'Rather likely', 'Likely'] \
-    }
+scales = {
+    'agreement': ['Fully disagree', 'Rather disagree', 'Neutral', 'Rather agree', 'Fully agree'],
+    'likelihood': ['Unlikely', 'Rather unlikely', 'Neither unlikely nor likely', 'Rather likely', 'Likely']
+}
 
 # determine the likert scale which has the most overlap with a given scale
+
+
 def determine_scale(scale):
     overlap_count = {}
     for s in scales.keys():

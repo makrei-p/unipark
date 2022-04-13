@@ -5,6 +5,7 @@ import re
 
 from unipark.utils.plots.matrix import clean_columname
 
+
 def _is_exclusive(series):
     vcs = series.value_counts()
     return True in vcs.index and vcs[True] == 1
@@ -22,13 +23,13 @@ def histogram(df, style='bar', names=None, with_exclusives=False, order=None, fi
     if names:
         # clean up the columnames
         names = list(map(lambda name: clean_columname(name), names))
-        
+
         if type(names) is not dict:
             names = dict(zip(df_count.columns, names))
         df_count = df_count.rename(columns=names)
         if with_exclusives:
             ex_count = ex_count.rename(columns=names)
-    
+
     # reorder columns
     if order:
         if order == 'count':
@@ -36,7 +37,7 @@ def histogram(df, style='bar', names=None, with_exclusives=False, order=None, fi
             df_count = df_count[new_columns]
             if with_exclusives:
                 ex_count = ex_count[new_columns]
-        elif order == 'alphabetic': 
+        elif order == 'alphabetic':
             df_count = df_count.reindex(sorted(df_count.columns), axis=1)
             if with_exclusives:
                 ex_count = ex_count.reindex(sorted(ex_count.columns), axis=1)
@@ -52,10 +53,13 @@ def histogram(df, style='bar', names=None, with_exclusives=False, order=None, fi
         path = file_prefix + '_distribution_' + style + '.png'
         plt.savefig(path, dpi=1200, bbox_inches='tight')
         ret += '![alt text]({} "Title")\n'.format(path)
-    if show: _=plt.show()
-    else: plt.clf()
+    if show:
+        _ = plt.show()
+    else:
+        plt.clf()
 
     return ret
+
 
 def vote_count(ticks, file_prefix=None, show=False):
     ret = ''
@@ -65,10 +69,13 @@ def vote_count(ticks, file_prefix=None, show=False):
         path = file_prefix + '_vote-count_distribution_hist.png'
         plt.savefig(path, dpi=1200, bbox_inches='tight')
         ret += '![alt text]({} "Title")\n'.format(path)
-    if show: _=plt.show()
-    else: plt.clf()
+    if show:
+        _ = plt.show()
+    else:
+        plt.clf()
 
     return ret
+
 
 def clean_columname(coltext: str):
     # first, try to filter by the "Listenelement" prefix
