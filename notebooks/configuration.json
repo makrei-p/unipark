@@ -1,0 +1,41 @@
+{
+  "paths": {
+    "input_csv": "../../data/data.csv",
+    "codebook_path": "../../data/codebook.csv",
+    "figures_save_dir_metadata": "./figs/md",
+    "figures_save_dir_autogen": "./figs/auto_gen"
+  },
+  "visualizations": {
+    "single": [
+      {
+        "finishers": true,
+        "chart": "bar",
+        "ordered": true,
+        "likert": true
+      }
+    ],
+    "multiple": [
+      {
+        "order": "count",
+        "with_exclusives": true,
+        "show_number_of_answers": true
+      }
+    ],
+    "free": [
+      {
+        "plot": "textlist"
+      }
+    ],
+    "freematrix": [
+      {
+        "plot": "textlist"
+      }
+    ],
+    "matrix": [
+      {
+        "plot": "likertmatrix",
+        "finishers": true
+      }
+    ]
+  }
+}

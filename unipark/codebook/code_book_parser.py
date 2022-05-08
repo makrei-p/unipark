@@ -47,7 +47,6 @@ def get_map_for_freetext(lines, start, end):
         'varchar': splits[3]
     }
 
-
 def get_map_for_freematrix(lines, start, end):
     def get_tuple(x):
         option_elements = x.split('\t')
